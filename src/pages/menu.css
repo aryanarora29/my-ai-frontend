@@ -1,0 +1,140 @@
+.menu-container {
+  padding: 0rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.top-right-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
+
+.cam-buttons,
+.result-nas-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.camera-test-1-button,
+.camera-test-2-button,
+.previous-result-button,
+.NAS-manage-button,
+.DB-chnage-button {
+  height: 3rem;
+  width: 25rem;
+  font-size: 1.1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.camera-test-1-button:hover,
+.camera-test-2-button:hover,
+.previous-result-button:hover,
+.NAS-manage-button:hover,
+.DB-chnage-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: scale(1.01);
+} 
+
+.take-photos-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  width: 51.5rem;
+  font-size: 1.1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.take-photos-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: scale(1.01);
+} 
+
+
+.model-learn-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  width: 51.5rem;
+  font-size: 1.1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.model-learn-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: scale(1.01);
+} 
+
+
+.diagnosis-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  width: 51.5rem;
+  font-size: 1.1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.diagnosis-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: scale(1.01);
+} 
+
+
+.db-buttons{
+  height: 2rem;
+  width: 51.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.db-details{
+  height: 1rem;
+  width: 25.5rem;
+
+}
+
+
+
+

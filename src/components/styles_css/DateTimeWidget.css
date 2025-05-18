@@ -1,0 +1,20 @@
+.datetime-widget {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  background: #333;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.5rem;
+}
+.datetime-widget button {
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+.datetime-widget button:hover {
+  background-color: #888;
+}

@@ -1,0 +1,17 @@
+.theme-toggle-button {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.3s;
+  }
+  
+  :root {
+    --text-color: #000;
+  }
+  
+  .dark :root {
+    --text-color: #fff;
+  }
+  

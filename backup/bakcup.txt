@@ -1,0 +1,1093 @@
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import './styles_css/SystemControls.css';
+import { useNavigate } from "react-router-dom";
+
+
+const SystemControls = () => {
+  const [isPowerActionActive, setIsPowerActionActive] = useState(false);
+  const [actionType, setActionType] = useState<'shutdown' | 'reboot' | null>(null);
+  const [countdown, setCountdown] = useState(10);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const navigate = useNavigate();
+
+
+  const powerActions = {
+    shutdown: {
+      color: 'bg-gray-600',
+      activeColor: 'bg-red-500',
+//      icon: 'dddd',
+      label: 'Shutting Down',
+      text: 'Shutdown'
+    },
+    reboot: {
+      color: 'bg-gray-600',
+      activeColor: 'bg-blue-500',
+      // icon: 'ffff',
+      label: 'Rebooting',
+      text: 'Reboot'
+    }
+  };
+
+
+  useEffect(() => {
+    if (countdown === 0 && isPowerActionActive && actionType) {
+      navigate("/OptionsPage"); // Redirect when countdown reaches 0
+    }
+  }, [countdown, isPowerActionActive, actionType, navigate]);
+  
+
+  useEffect(() => {
+    if (!isPowerActionActive) return;
+
+    const timer = setInterval(() => {
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isPowerActionActive]);
+
+  const handlePowerAction = (type: 'shutdown' | 'reboot') => {
+    setActionType(type);
+    setIsPowerActionActive(true);
+    setCountdown(10);
+  };
+
+  const handleCancel = () => {
+    setIsCancelling(true);
+    setTimeout(() => {
+      setIsPowerActionActive(false);
+      setActionType(null);
+      setIsCancelling(false);
+    }, 1000);
+  };
+
+  return (
+    <div className="fixed bottom-8 right-8 flex gap-4">
+      {/* Power Buttons */}
+      {(['shutdown', 'reboot'] as const).map((type) => (
+        <motion.button
+        key={type}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className={`action-button ${isPowerActionActive && actionType === type ? 'confirmed' : ''}`}
+        onClick={() => handlePowerAction(type)}
+      >
+        <div className="button-content">
+          <span className="button-text">{powerActions[type].text}</span>
+          <div className="icon">
+            {type === 'shutdown' ? (
+              <svg viewBox="0 0 24 24">
+                <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+              </svg>
+            )}
+          </div>
+          <div className="icon confirmed-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </div>
+      </motion.button>
+      ))}
+
+      {/* Action Overlay */}
+      <AnimatePresence>
+        {isPowerActionActive && actionType && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="action-overlay"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className={`p-8 rounded-2xl ${powerActions[actionType].activeColor} text-white text-center`}
+            >
+              <div className="text-6xl mb-4">
+                {/* {powerActions[actionType].icon} */}
+              </div>
+              
+              <h2 className="text-3xl font-bold mb-4">
+                {powerActions[actionType].label}
+              </h2>
+
+              {/* Improved Countdown */}
+              <div className="countdown-container">
+                <div className="countdown-progress">
+                  <div className="progress-bar" />
+                  <div className="glow-effect" />
+                </div>
+                {/* <div className="countdown-text"></div> */}
+              </div>
+
+              {/* Cancel Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`cancel-button ${isCancelling ? 'confirmed' : ''}`}
+                onClick={handleCancel}
+              >
+                <span className="button-text">Cancel</span>
+                <div className="icon-container">
+                  <svg className="cross-icon" viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                  <svg className="check-icon" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default SystemControls;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
+/////////////////////////////// */
+.power-button span {
+  position: absolute;
+  left: 0;
+  width: 72%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+}
+
+.power-button .check {
+  display: none;
+}
+
+
+/* Overlay & Countdown */
+.action-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.overlay-heading {
+  margin-bottom: 0.5rem; /* Reduced from default 2rem */
+}
+.countdown-container {
+  width: 300px;
+  margin: 20px 0;
+  position: relative;
+  color: white;
+}
+
+.countdown-progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: white;
+  transform-origin: left;
+  animation: progress 10s linear forwards;
+}
+
+/* .countdown-text {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: red !important;
+  transition: none;
+  margin-bottom: 1rem;
+} */
+
+.countdown-text span {
+  color: var(--primary-color);
+}
+@keyframes progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* SystemControls.css */
+:root {
+  /* Light Theme */
+  --primary-color: #c0392b;
+  --danger-color: #ef4444;
+  --success-color: #27ae60;
+  --text-color: #ffffff;
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --progress-glow: rgba(255, 255, 255, 0.4);
+  --button-hover-bg: #ef4444;
+  --overlay-content-bg: rgba(255, 255, 255, 0.1);
+}
+
+.dark {
+  /* Dark Theme */
+  --primary-color: #dc2626;
+  --danger-color: #b91c1c;
+  --success-color: #16a34a;
+  --text-color: #f0f0f0;
+  --overlay-bg: rgba(255, 255, 255, 0.1);
+  --progress-glow: rgba(0, 0, 0, 0.4);
+  --button-hover-bg: #b91c1c;
+  --overlay-content-bg: rgba(0, 0, 0, 0.9);
+}
+
+
+/* Power Buttons */
+.power-button {
+  position: relative;
+  background: var(--primary-color);
+  width: 100px;
+  height: 37px;
+  color: var(--text-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-button:hover {
+  background: var(--button-hover-bg) !important;
+}
+
+.power-button span {
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+  font-size: 1.1rem;
+}
+
+.power-button .icon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+}
+
+.power-button .icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Hover & Active States */
+.power-button:hover {
+  background: var(--danger-color);
+}
+
+.power-button:hover span {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.power-button:hover .icon svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.power-button.success {
+  background: var(--success-color);
+}
+
+.power-button.success .icon svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Cancel Button */
+.cancel-button {
+  position: relative;
+  background: var(--primary-color);
+  color: var(--text-color);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  background: var(--danger-color);
+}
+
+.cancel-button .icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.cancel-button:hover span {
+  opacity: 0;
+}
+
+.cancel-button:hover .icon {
+  opacity: 1;
+}
+
+/* Progress Bar Glow */
+.glow-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--progress-glow) 50%,
+    transparent 100%
+  );
+  animation: glow 2s infinite;
+}
+
+@keyframes glow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(330%); }
+}
+
+
+
+
+
+
+
+/* Power Buttons Container */
+.power-buttons-container {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Power Buttons */
+.power-button {
+  position: relative;
+  background: var(--primary-color);
+  width: 100px;
+  height: 37px;
+  color: var(--text-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-button span {
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+  font-size: 1.1rem;
+}
+
+.power-button .icon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-button .icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+}
+
+/* Hover & Active States */
+.power-button:hover {
+  background: var(--danger-color);
+}
+
+.power-button:hover span {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.power-button:hover .icon svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.power-button.success {
+  background: var(--success-color);
+}
+
+.power-button.success .icon svg.check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Cancel Button */
+.cancel-button {
+  position: relative;
+  background: var(--primary-color);
+  color: var(--text-color);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+.cancel-button:hover {
+  background: red;
+  
+}
+
+.cancel-button span {
+  transition: all 0.3s ease;
+}
+
+.cancel-button .icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.cancel-button .cross {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.cancel-button:hover span {
+  opacity: 0;
+}
+
+.cancel-button:hover .icon {
+  opacity: 1;
+}
+
+/* Progress Bar Glow Fix */
+.countdown-progress {
+  position: relative;
+  overflow: hidden;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.glow-effect {
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--progress-glow) 50%,
+    transparent 100%
+  );
+  animation: glow 2s infinite;
+}
+
+@keyframes glow {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(430%); }
+}
+
+/* New Styles */
+.action-buttons-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* .action-button {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  /* color: white; 
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+} */
+
+.action-button {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--text-color);;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button svg {
+  width: 48px;
+  height: 48px;
+  fill: currentColor;
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.close-button svg {
+  fill: var(--text-color); /* Use the theme-based text color */
+}
+
+.dark .close-button {
+  color: white;
+  top: 2rem;
+}
+
+/* .overlay-content {
+  background: var(--overlay-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  position: relative;
+  min-width: 500px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} */
+
+.overlay-content {
+  background: var(--overlay-content-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  position: relative;
+  min-width: 500px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* backdrop-filter: blur(8px); */
+  color: var(--text-color);
+}
+
+
+/* .countdown-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: white;
+  font-size: 2.2rem;
+
+} */
+
+.countdown-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: white !important; /* Force white text */
+  font-size: 2.2rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+deepseek promt
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import './styles_css/SystemControls.css';
+import { useNavigate } from "react-router-dom";
+
+const SystemControls = () => {
+  const [isPowerActionActive, setIsPowerActionActive] = useState(false);
+  const [actionType, setActionType] = useState<'shutdown' | 'reboot' | null>(null);
+  const [countdown, setCountdown] = useState(10);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const navigate = useNavigate();
+
+  const powerActions = {
+    shutdown: {
+      label: 'Shutting Down',
+      text: 'Shutdown',
+      color: 'bg-red-500',
+    },
+    reboot: {
+      label: 'Rebooting',
+      text: 'Reboot',
+      color: 'bg-blue-500',
+    }
+  };
+
+  useEffect(() => {
+    if (countdown === 0 && isPowerActionActive && actionType) {
+      navigate("/OptionsPage");
+    }
+  }, [countdown, isPowerActionActive, actionType, navigate]);
+
+  useEffect(() => {
+    if (!isPowerActionActive) return;
+
+    const timer = setInterval(() => {
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isPowerActionActive]);
+
+  const handlePowerAction = (type: 'shutdown' | 'reboot') => {
+    setActionType(type);
+    setIsPowerActionActive(true);
+    setCountdown(10);
+  };
+
+  const handleCancel = () => {
+    setIsCancelling(true);
+    setTimeout(() => {
+      setIsPowerActionActive(false);
+      setActionType(null);
+      setIsCancelling(false);
+    }, 1000);
+  };
+
+  return (
+    <div className="fixed bottom-8 right-8 flex gap-4">
+      {(['shutdown', 'reboot'] as const).map((type) => (
+        <motion.button
+          key={type}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`power-button ${isPowerActionActive && actionType === type ? 'success' : ''}`}
+          onClick={() => handlePowerAction(type)}
+        >
+          <span>{powerActions[type].text}</span>
+          <div className="icon">
+            <svg className="cross" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <svg className="check" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </motion.button>
+      ))}
+
+      <AnimatePresence>
+        {isPowerActionActive && actionType && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="action-overlay"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className={`p-8 rounded-2xl ${powerActions[actionType].color} text-white text-center`}
+            >
+              <h2 className="text-3xl font-bold mb-4">
+                {powerActions[actionType].label}
+              </h2>
+
+              <div className="countdown-container">
+                <div className="countdown-progress">
+                  <div className="progress-bar" />
+                </div>
+                <div className="countdown-text">{countdown}s</div>
+              </div>
+
+              <motion.button
+                className="cancel-button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCancel}
+              >
+                <span>Cancel</span>
+                <div className="icon">
+                  <svg className="cross" viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                  <svg className="check" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default SystemControls;
+
+css:
+
+
+/* SystemControls.css */
+:root {
+  --primary-color: #c0392b;
+  --success-color: #27ae60;
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
+.dark {
+  --primary-color: #dc2626;
+  --success-color: #16a34a;
+  --overlay-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Power Buttons */
+.power-button {
+  position: relative;
+  background: var(--primary-color);
+  width: 160px;
+  height: 60px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+}
+
+.power-button span {
+  position: absolute;
+  left: 0;
+  width: 72%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+}
+
+.power-button .icon {
+  position: absolute;
+  right: 0;
+  width: 28%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.31, -0.11, 0.43, 1.4);
+}
+
+.power-button .icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  transition: all 0.3s ease;
+}
+
+.power-button .check {
+  display: none;
+}
+
+/* Hover & Active States */
+.power-button:hover span {
+  left: -72%;
+  opacity: 0;
+}
+
+.power-button:hover .icon {
+  width: 100%;
+}
+
+.power-button.success {
+  background: var(--success-color);
+}
+
+.power-button.success .check {
+  display: block;
+}
+
+.power-button.success .cross {
+  display: none;
+}
+
+/* Cancel Button */
+.cancel-button {
+  position: relative;
+  background: #4a5568;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cancel-button span {
+  transition: all 0.3s ease;
+}
+
+.cancel-button .icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.cancel-button:hover span {
+  opacity: 0;
+}
+
+.cancel-button:hover .icon {
+  opacity: 1;
+}
+
+/* Overlay & Countdown */
+.action-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.countdown-container {
+  width: 300px;
+  margin: 20px 0;
+  position: relative;
+}
+
+.countdown-progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: white;
+  transform-origin: left;
+  animation: progress 10s linear forwards;
+}
+
+.countdown-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+}
+
+@keyframes progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+i tried to change this on my own i lost the glow in the progress bar also the buttons i dont know why are they not wroiting text in the center also the color of the textt is alwasy white in light mode also i need that according to the mode. also i lost the power button icon and reboot button icon i just neeed power icon and reboot icon instad of cross , i need cross in the cancel button which was not there , but i liked the animation of the power and rebooot button but was not able to see the animation the the cancle button , also in the hower i need red color in all the button

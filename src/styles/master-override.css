@@ -1,0 +1,38 @@
+/* theme-override.css */
+/* Base theme variables */
+:root {
+  --bg: #f4f4f4;
+  --text: #111;
+  --accent: #2e2e6e;
+  --button-bg: #e0e0e0;
+  --border: #ccc;
+  --hover: #d6d6d6;
+  --accent-hover: #1c1c5a;
+}
+
+/* Dark mode override */
+html.dark {
+  --bg: #121212;
+  --text: #f0f0f0;
+  --accent: #00c0ff;
+  --button-bg: #1e1e1e;
+  --border: #444;
+  --hover: #333;
+  --accent-hover: #00a4da;
+}
+
+/* Force background on root elements */
+html, body, #root {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  transition: background 0.3s ease !important;
+}
+
+/* Loader specific overrides */
+.circle-loader-container {
+  background: var(--bg) !important;
+}
+
+.circle-loader circle {
+  stroke: var(--accent) !important;
+}

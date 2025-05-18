@@ -1,0 +1,9 @@
+.database-status {
+  color: #ccc;
+  background-color: #1a1a1a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+}
